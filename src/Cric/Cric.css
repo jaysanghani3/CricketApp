@@ -35,3 +35,20 @@
     letter-spacing: 1px;
     font-size: 18px;
 }
+
+.rowBG{
+    background-color: rgba(223, 223, 223, 0.423);
+    padding: 9px;
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.rightCol .runPerBall{
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid;
+    text-align: center;
+    padding-top: 4px;
+}
