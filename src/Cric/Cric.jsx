@@ -4,7 +4,7 @@ import "./Cric.css";
 import teamdata from "./Team.json";
 
 const Cric = () => {
-  const totalOver = 20;
+  const totalOver = 5;
   const Extras = [
     { name: "WD", run: 1 },
     { name: "NB", run: 1 },
@@ -29,6 +29,10 @@ const Cric = () => {
     setOveer(overs + remainballs);
   }, [data]);
   const handleRunClick = (e) => {
+    if(oveer >= totalOver){ 
+      alert("Inning is Over");
+    }
+    else{
     let newData = [...curRun];
     if (bowler.bowling.balls % 6 === 0) {
       let curOver = [];
@@ -74,6 +78,7 @@ const Cric = () => {
     tempData[0].team_score += e;
     setData(tempData);
     setValue(!value);
+  }
   };
 
   const handleExtraClick = (extra) => {
