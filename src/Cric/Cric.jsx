@@ -2,7 +2,6 @@ import { FiEdit3, FiPlus } from "react-icons/fi";
 import React, { useEffect, useState } from "react";
 import "./Cric.css";
 import teamdata from "./Team.json";
-import Scorecard from "./Scorecard";
 
 const Cric = () => {
   const totalOver = 5;
@@ -92,6 +91,9 @@ const Cric = () => {
     }else{
       if (extra.name === "OUT" && data[0].team_wickets <9) {
         data[0].team_wickets += 1;
+        if(strike.onStrike.batting.balls===0)
+        strike.onStrike.batting.strikeRate = 0.0;
+        else
         strike.onStrike.batting.strikeRate = ((strike.onStrike.batting.runs / strike.onStrike.batting.balls) * 100).toFixed(2);
         console.log(playerPlayed);
         const newPlayer = teamdata[0].players.filter((player) => !playerPlayed.includes(player));
@@ -112,6 +114,8 @@ const Cric = () => {
           </span>
         </div>
       </div>
+      
+      
 
       <div className="row">
         <div className="col-12 col-lg-7 col-sm-12 col-xl-8 mainLeftArea p-0">
@@ -215,8 +219,6 @@ const Cric = () => {
             })}
             <button className="btn btn-warning text-white  extraBtn">Undo</button>
           </div>
-
-          <Scorecard />
         </div>
 
         <div className="col-auto col-lg-5 col-sm-auto col-xl-4 text-center rightCol">
@@ -268,6 +270,7 @@ const Cric = () => {
           })}
         </div>
       </div>
+      
     </div>
   );
 };

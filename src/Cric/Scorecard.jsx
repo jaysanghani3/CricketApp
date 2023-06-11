@@ -8,7 +8,7 @@ const Scorecard = () => {
         <div className="col-6 fs-3 fw-semibold">{data[0].team_name}</div>
         <div className="col-4 fs-3 fw-bold text-end">{data[0].team_score}</div>
         <div className="col-2 fs-5 pt-2">
-            ({data[1].team_balls/ 6}.{data[1].team_balls % 6} Overs)
+            ({Math.floor(data[1].team_balls/ 6)}.{data[1].team_balls % 6} Overs)
         </div>
       </div>
 
