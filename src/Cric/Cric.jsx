@@ -2,6 +2,7 @@ import { FiEdit3, FiPlus } from "react-icons/fi";
 import React, { useEffect, useState } from "react";
 import "./Cric.css";
 import teamdata from "./Team.json";
+import Scorecard from "./Scorecard";
 
 const Cric = () => {
   const totalOver = 5;
@@ -22,70 +23,81 @@ const Cric = () => {
   const [value, setValue] = useState(false);
   const [oveer, setOveer] = useState(0.0);
   const [curRun, setCurRun] = useState([[]]);
-
+  const [playerPlayed, setPlayerPlayed] = useState([strike.onStrike, strike.offStrike]);
+ 
   useEffect(() => {
     let overs = Math.floor(data[1].team_balls / 6);
     let remainballs = (data[1].team_balls % 6) / 10;
     setOveer(overs + remainballs);
   }, [data]);
+
   const handleRunClick = (e) => {
-    if(oveer >= totalOver){ 
+    if (oveer >= totalOver) {
       alert("Inning is Over");
-    }
-    else{
-    let newData = [...curRun];
-    if (bowler.bowling.balls % 6 === 0) {
-      let curOver = [];
-      const curData = { over: oveer + 0.1, run: e, bowlerName: bowler.name, batsmanName: strike.onStrike.name };
-      curOver = [curData, ...curOver];
-      newData = [curOver, ...newData];
     } else {
-      let curOver = newData[0];
-      const curData = { over: oveer + 0.1, run: e, bowlerName: bowler.name, batsmanName: strike.onStrike.name };
-      curOver = [curData, ...curOver];
-      newData[0] = curOver;
-    }
-    setCurRun(newData);
-
-    let tempData = { ...data };
-    // if (bowler.bowling.balls % 6 === 0 && bowler.bowling.balls !== 0 && strike.onStrike.batting.runs === 0)
-    // bowler.bowling.maiden_over += 1;
-
-    if ((bowler.bowling.balls % 6 ) >=5 && bowler.bowling.balls !== 0) {
-      let bowlerIndex = parseInt(prompt("Please Bowler Index"));
-      while (bowler === tempData[1].players[bowlerIndex] && bowlerIndex < 11 && bowlerIndex >= 0 && bowlerIndex !== null && bowlerIndex !== undefined && bowlerIndex !== "" && bowlerIndex !== NaN) { 
-        alert("Please, Change the Bowler Same Bowler can't bowling in twice in a line.");
-        bowlerIndex = parseInt(prompt("Please Bowler Index"));
+      let newData = [...curRun];
+      if (bowler.bowling.balls % 6 === 0) {
+        let curOver = [];
+        const curData = { over: oveer + 0.1, run: e, bowlerName: bowler.name, batsmanName: strike.onStrike.name };
+        curOver = [curData, ...curOver];
+        newData = [curOver, ...newData];
+      } else {
+        let curOver = newData[0];
+        const curData = { over: oveer + 0.1, run: e, bowlerName: bowler.name, batsmanName: strike.onStrike.name };
+        curOver = [curData, ...curOver];
+        newData[0] = curOver;
       }
-      setBowler(tempData[1].players[bowlerIndex]);
-      setStrike((x) => ({ onStrike: x.offStrike, offStrike: x.onStrike }));
-    }
-    if (e % 2 === 0) {
-      if (e === 4) strike.onStrike.batting.fours += 1;
-      if (e === 6) strike.onStrike.batting.sixes += 1;
-    } else {
-      setStrike((x) => ({ onStrike: x.offStrike, offStrike: x.onStrike }));
-    }
+      setCurRun(newData);
 
-    bowler.bowling.runs += e;
-    bowler.bowling.balls += 1;
-    tempData[1].team_balls += 1;
-    if (extra.name === "Bye" || extra.name === "LB") {
-      strike.onStrike.batting.runs -= e;
+      let tempData = { ...data };
+      // if (bowler.bowling.balls % 6 === 0 && bowler.bowling.balls !== 0 && strike.onStrike.batting.runs === 0)
+      // bowler.bowling.maiden_over += 1;
+
+      if (bowler.bowling.balls % 6 >= 5 && bowler.bowling.balls !== 0) {
+        let bowlerIndex = parseInt(prompt("Please Bowler Index"));
+        while (bowler === tempData[1].players[bowlerIndex] && bowlerIndex < 11 && bowlerIndex >= 0 && bowlerIndex !== null && bowlerIndex !== undefined && bowlerIndex !== "" && bowlerIndex !== NaN) {
+          alert("Please, Change the Bowler Same Bowler can't bowling in twice in a line.");
+          bowlerIndex = parseInt(prompt("Please Bowler Index"));
+        }
+        setBowler(tempData[1].players[bowlerIndex]);
+        setStrike((x) => ({ onStrike: x.offStrike, offStrike: x.onStrike }));
+      }
+      if (e % 2 === 0) {
+        if (e === 4) strike.onStrike.batting.fours += 1;
+        if (e === 6) strike.onStrike.batting.sixes += 1;
+      } else {
+        setStrike((x) => ({ onStrike: x.offStrike, offStrike: x.onStrike }));
+      }
+
+      bowler.bowling.runs += e;
+      bowler.bowling.balls += 1;
+      tempData[1].team_balls += 1;
+      if (extra.name === "Bye" || extra.name === "LB") {
+        strike.onStrike.batting.runs -= e;
+      }
+      strike.onStrike.batting.runs += e;
+      strike.onStrike.batting.balls += 1;
+      tempData[0].team_score += e;
+      setData(tempData);
+      setValue(!value);
     }
-    strike.onStrike.batting.runs += e;
-    strike.onStrike.batting.balls += 1;
-    tempData[0].team_score += e;
-    setData(tempData);
-    setValue(!value);
-  }
   };
 
   const handleExtraClick = (extra) => {
     bowler.bowling.runs += extra.run;
     data[0].team_score += extra.run;
-    if (extra.name === "OUT") {
+    if(extra.name === "OUT" && data[0].team_wickets === 9){
       data[0].team_wickets += 1;
+      alert("Inning is Over");
+    }else{
+      if (extra.name === "OUT" && data[0].team_wickets <9) {
+        data[0].team_wickets += 1;
+        strike.onStrike.batting.strikeRate = ((strike.onStrike.batting.runs / strike.onStrike.batting.balls) * 100).toFixed(2);
+        console.log(playerPlayed);
+        const newPlayer = teamdata[0].players.filter((player) => !playerPlayed.includes(player));
+        setPlayerPlayed((x) => [...x, newPlayer[0]]);
+        setStrike((x) => ({ onStrike: newPlayer[0], offStrike: x.offStrike }));
+      }
     }
     setExtra({ ...extra, name: value });
     setData(data);
@@ -109,7 +121,7 @@ const Cric = () => {
                 <div className="fs-4 fw-semibold me-3 p-2 pt-3">{teamdata[0].team_name}</div>
                 <div className="scoreArea p-1">
                   <span className="score fs-1 fw-bold">
-                    {data[0].team_score}/{data[0].team_wickets}{" "}
+                    {data[0].team_score}/{data[0].team_wickets}
                   </span>
                   <span className="overs fs-5 fw-semibold ms-2">
                     ({oveer}/{totalOver})
@@ -117,47 +129,65 @@ const Cric = () => {
                 </div>
               </div>
 
-              <div className="row d-flex my-4 ">
-                <div className="col batsmanArea border-end ">
-                  <div className="batsmanName fw-semibold">{strike.onStrike.name}</div>
-                  <div className="batsmanScore">
-                    {strike.onStrike.batting.runs} ({strike.onStrike.batting.balls})
-                  </div>
+              <div className="row border-bottom rounded mt-4">
+                <div className="col-4">
+                  CRR<b className="fs-5 ms-1">0.0</b>
                 </div>
-                <div className="col">
-                  <div className="batsmanName fw-semibold">{strike.offStrike.name}</div>
-                  <div className="batsmanScore">
-                    {strike.offStrike.batting.runs} ({strike.offStrike.batting.balls})
-                  </div>
+                <div className="col-4 text-center">
+                  REQ<b className="fs-5 ms-1">0.0</b>
+                </div>
+                <div className="col-4 text-end">
+                  P'SHIP<b className="fs-5 ms-1">0(0)</b>
                 </div>
               </div>
-
-              <div className="row">
-                <div className="col d-flex flex-wrap justify-content-between p-2 ">
-                  <div>
-                    <span>CRR</span> <b className="fs-5 ms-1">0.0</b>
-                  </div>
-                  <div>
-                    <span>REQ</span> <b className="fs-5 ms-1">0.0</b>
-                  </div>
-                  <div>
-                    <span>P'SHIP</span> <b className="fs-5 ms-1">0(0)</b>
-                  </div>
-                </div>
+              <div className="row my-2">
+                <div className="col-6">Batter</div>
+                <div className="col">R</div>
+                <div className="col">B</div>
+                <div className="col">4s</div>
+                <div className="col">6s</div>
+                <div className="col">SR</div>
+              </div>
+              <div className="row fs-5">
+                <div className="batsmanName col-6 fw-semibold">{strike.onStrike.name}</div>
+                <div className="batsmanScore col">{strike.onStrike.batting.runs}</div>
+                <div className="col">{strike.onStrike.batting.balls}</div>
+                <div className="col">{strike.onStrike.batting.fours}</div>
+                <div className="col">{strike.onStrike.batting.sixes}</div>
+                <div className="col">{strike.onStrike.batting.strikeRate}</div>
+              </div>
+              <div className="row fs-5">
+                <div className="batsmanName col-6 fw-semibold">{strike.offStrike.name}</div>
+                <div className="batsmanScore col">{strike.offStrike.batting.runs}</div>
+                <div className="col">{strike.offStrike.batting.balls}</div>
+                <div className="col">{strike.offStrike.batting.fours}</div>
+                <div className="col">{strike.offStrike.batting.sixes}</div>
+                <div className="col">{strike.offStrike.batting.strikeRate}</div>
               </div>
 
-              <div className="row d-flex border-top pt-3">
+              <div className="row my-2 pt-2 rounded border-top mt-4">
+                <div className="col-3">Bowler</div>
+                <div className="col">Recent Runs</div>
+                <div className="col-1 ps-3">O</div>
+                <div className="col-1">R</div>
+                <div className="col-1">W</div>
+              </div>
+              <div className="row d-flex fs-5">
                 <div className="col-3">{bowler.name}</div>
-                {curRun[0].map((r, index) => {
-                  return (
-                    <div key={index} className="col-1">
-                      <b>{r.run}</b>
-                    </div>
-                  );
-                })}
-                <div className="col-2 d-flex ms-auto">
-                  {Math.floor(bowler.bowling.balls / 6)}.{bowler.bowling.balls % 6} - {bowler.bowling.maiden_over} - {bowler.bowling.runs} - {bowler.bowling.wickets}
+                <div className="col-6">
+                  {curRun[0].map((r, index) => {
+                    return (
+                      <b key={index} className="ms-3">
+                        {r.run}
+                      </b>
+                    );
+                  })}
                 </div>
+                <div className="col-1">
+                  {Math.floor(bowler.bowling.balls / 6)}.{bowler.bowling.balls % 6}
+                </div>
+                <div className="col-1">{bowler.bowling.runs}</div>
+                <div className="col-1">{bowler.bowling.wickets}</div>
               </div>
             </div>
           </div>
@@ -185,6 +215,8 @@ const Cric = () => {
             })}
             <button className="btn btn-warning text-white  extraBtn">Undo</button>
           </div>
+
+          <Scorecard />
         </div>
 
         <div className="col-auto col-lg-5 col-sm-auto col-xl-4 text-center rightCol">
